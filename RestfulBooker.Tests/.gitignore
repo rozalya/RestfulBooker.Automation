@@ -1,0 +1,18 @@
+﻿# Build results
+[Bb]in/
+[Oo]bj/
+*.log
+*.tmp
+
+# User settings
+appsettings.json
+*.user
+*.userosscache
+*.sln.docstates
+
+# Visual Studio files
+.vs/
+.vscode/
+
+# Packages
+packages/

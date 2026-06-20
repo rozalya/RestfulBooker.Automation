@@ -1,0 +1,12 @@
+C:\Users\rosal\source\repos\RestfulBooker.Automation\RestfulBooker.Core\bin\Debug\net7.0\RestfulBooker.Core.deps.json
+C:\Users\rosal\source\repos\RestfulBooker.Automation\RestfulBooker.Core\bin\Debug\net7.0\RestfulBooker.Core.dll
+C:\Users\rosal\source\repos\RestfulBooker.Automation\RestfulBooker.Core\bin\Debug\net7.0\RestfulBooker.Core.pdb
+C:\Users\rosal\source\repos\RestfulBooker.Automation\RestfulBooker.Core\obj\Debug\net7.0\RestfulBooker.Core.csproj.AssemblyReference.cache
+C:\Users\rosal\source\repos\RestfulBooker.Automation\RestfulBooker.Core\obj\Debug\net7.0\RestfulBooker.Core.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\rosal\source\repos\RestfulBooker.Automation\RestfulBooker.Core\obj\Debug\net7.0\RestfulBooker.Core.AssemblyInfoInputs.cache
+C:\Users\rosal\source\repos\RestfulBooker.Automation\RestfulBooker.Core\obj\Debug\net7.0\RestfulBooker.Core.AssemblyInfo.cs
+C:\Users\rosal\source\repos\RestfulBooker.Automation\RestfulBooker.Core\obj\Debug\net7.0\RestfulBooker.Core.csproj.CoreCompileInputs.cache
+C:\Users\rosal\source\repos\RestfulBooker.Automation\RestfulBooker.Core\obj\Debug\net7.0\RestfulBooker.Core.dll
+C:\Users\rosal\source\repos\RestfulBooker.Automation\RestfulBooker.Core\obj\Debug\net7.0\refint\RestfulBooker.Core.dll
+C:\Users\rosal\source\repos\RestfulBooker.Automation\RestfulBooker.Core\obj\Debug\net7.0\RestfulBooker.Core.pdb
+C:\Users\rosal\source\repos\RestfulBooker.Automation\RestfulBooker.Core\obj\Debug\net7.0\ref\RestfulBooker.Core.dll
