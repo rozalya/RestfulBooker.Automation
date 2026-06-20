@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using RestfulBooker.Core;
+using Serilog;
 
 namespace RestfulBooker.Tests
 {
@@ -15,6 +16,13 @@ namespace RestfulBooker.Tests
             Configuration = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .Build();
+
+            // Configure Serilog
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .WriteTo.Console()
+                .WriteTo.File("logs/test-run-.log", rollingInterval: RollingInterval.Day)
+                .CreateLogger();
         }
 
         [OneTimeSetUp]
@@ -26,6 +34,36 @@ namespace RestfulBooker.Tests
 
             App = new RestfulBookerApp(baseUrl);
             AuthToken = App.Auth.GetAuthToken(username, password);
+        }
+
+        [OneTimeTearDown]
+        public void GlobalTeardown()
+        {
+            // Ensure logs are flushed to disk before the process exits
+            Log.CloseAndFlush();
+        }
+
+        [TearDown]
+       /* public void LogAttachment()
+        {
+            // Attaches the log file to the current test result for easier viewing in reporting tools
+            //TestContext.AddTestAttachment("logs/test-run-.log", "Execution Logs");
+        }*/
+        public async Task BaseCleanup()
+        {
+            foreach (var id in ResourceRegistry.IdsToDelete)
+            {
+                try
+                {
+                    await App.Booking.DeleteBookingAsync(id, AuthToken);
+                    Log.Information("Successfully cleaned up ID: {Id}", id);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error("Failed to clean up ID {Id}: {Message}", id, ex.Message);
+                }
+            }
+            ResourceRegistry.IdsToDelete.Clear();
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace RestfulBooker.Core
 {
@@ -26,6 +27,11 @@ namespace RestfulBooker.Core
             [JsonProperty("bookingid")]
             public int bookingid { get; set; }
             public BookingRequest booking { get; set; }
+        }
+        public class BookingSummary
+        {
+            [JsonPropertyName("bookingid")]
+            public int bookingId { get; set; }
         }
     }
 }

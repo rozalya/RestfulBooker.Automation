@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "gUo4ClRNP1ERKi8vXlsmhxB2z+P/aEQnkaBpDTd9wJl0UTwJJR9J5uEvokNytWXsiuxTZIeo9xNmV++7gl+wvQ==",
+  "dgSpecHash": "3PfQjy0Ar+Vrl+oWmtFjzR90AOqxcWzBJH8QGI/QJeZJ1+LQTLsbmzkIVNIlPaxoEgu4JAwbt7DBw9eV5cYVmA==",
   "success": true,
   "projectFilePath": "C:\\Users\\rosal\\source\\repos\\RestfulBooker.Automation\\RestfulBooker.Core\\RestfulBooker.Core.csproj",
   "expectedPackageFiles": [
@@ -8,6 +8,7 @@
     "C:\\Users\\rosal\\.nuget\\packages\\newtonsoft.json\\13.0.4\\newtonsoft.json.13.0.4.nupkg.sha512",
     "C:\\Users\\rosal\\.nuget\\packages\\restsharp\\114.0.0\\restsharp.114.0.0.nupkg.sha512",
     "C:\\Users\\rosal\\.nuget\\packages\\restsharp.serializers.newtonsoftjson\\114.0.0\\restsharp.serializers.newtonsoftjson.114.0.0.nupkg.sha512",
+    "C:\\Users\\rosal\\.nuget\\packages\\serilog\\4.3.1\\serilog.4.3.1.nupkg.sha512",
     "C:\\Users\\rosal\\.nuget\\packages\\system.buffers\\4.6.1\\system.buffers.4.6.1.nupkg.sha512",
     "C:\\Users\\rosal\\.nuget\\packages\\system.io.pipelines\\10.0.0\\system.io.pipelines.10.0.0.nupkg.sha512",
     "C:\\Users\\rosal\\.nuget\\packages\\system.memory\\4.6.3\\system.memory.4.6.3.nupkg.sha512",

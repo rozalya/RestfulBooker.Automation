@@ -4,5 +4,6 @@
     <Import Project="$(NuGetPackageRoot)system.text.encodings.web\10.0.0\buildTransitive\netcoreapp2.0\System.Text.Encodings.Web.targets" Condition="Exists('$(NuGetPackageRoot)system.text.encodings.web\10.0.0\buildTransitive\netcoreapp2.0\System.Text.Encodings.Web.targets')" />
     <Import Project="$(NuGetPackageRoot)system.io.pipelines\10.0.0\buildTransitive\netcoreapp2.0\System.IO.Pipelines.targets" Condition="Exists('$(NuGetPackageRoot)system.io.pipelines\10.0.0\buildTransitive\netcoreapp2.0\System.IO.Pipelines.targets')" />
     <Import Project="$(NuGetPackageRoot)system.text.json\10.0.0\buildTransitive\netcoreapp2.0\System.Text.Json.targets" Condition="Exists('$(NuGetPackageRoot)system.text.json\10.0.0\buildTransitive\netcoreapp2.0\System.Text.Json.targets')" />
+    <Import Project="$(NuGetPackageRoot)serilog\4.3.1\buildTransitive\Serilog.targets" Condition="Exists('$(NuGetPackageRoot)serilog\4.3.1\buildTransitive\Serilog.targets')" />
   </ImportGroup>
 </Project>
