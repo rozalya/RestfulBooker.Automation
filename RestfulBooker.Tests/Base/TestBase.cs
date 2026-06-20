@@ -65,5 +65,18 @@ namespace RestfulBooker.Tests
             }
             ResourceRegistry.IdsToDelete.Clear();
         }
+
+        // 2. UTILITY METHODS (Called manually by your tests)
+        protected void Step(string description, Action action)
+        {
+            Log.Information($">>> STEP: {description}");
+            action();
+        }
+        // Overload for Async steps
+        protected async Task StepAsync(string description, Func<Task> action)
+        {
+            Log.Information($">>> STEP: {description}");
+            await action();
+        }
     }
 }

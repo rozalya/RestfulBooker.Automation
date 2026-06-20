@@ -1,4 +1,6 @@
-﻿using FluentAssertions;
+﻿using Bogus.DataSets;
+using FluentAssertions;
+using static RestfulBooker.Core.BookingModel;
 
 namespace RestfulBooker.Tests
 {
@@ -8,16 +10,23 @@ namespace RestfulBooker.Tests
         [Test]
         public async Task GetBooking_ValidId_ShouldReturnBookingDetails()
         {
-            // 1. Arrange: Get booking ID
-            var bookingList = await App.Booking.GetAllBookingIdsAsync();
-            var firstId = bookingList.First().bookingId;
+            int firstId = 0;
+            BookingRequest booking = null;
 
-            // 2. Act: Use the ID we just captured
-            var booking = await App.Booking.GetBookingAsync(firstId, AuthToken);
+            await StepAsync("Arrange: Get booking ID", async () => {
+                var bookingList = await App.Booking.GetAllBookingIdsAsync();
+                firstId = bookingList.First().bookingId;
+            });
 
-            // 3. Assert
-            booking.Should().NotBeNull();
-            booking.firstname.Should().NotBeNull();
+            await StepAsync("Act: Use the ID we just captured", async () => {
+                booking = await App.Booking.GetBookingAsync(firstId, AuthToken);
+            });
+
+            Step("Assert", () => {
+                booking.Should().NotBeNull();
+                booking.firstname.Should().NotBeNull();
+            });
+          
         }
 
 
