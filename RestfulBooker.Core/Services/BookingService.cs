@@ -14,18 +14,22 @@ public class BookingService : RestClientBase
     {
         var request = new RestRequest("/booking", Method.Get);
         var data = await SendRequestAsync<List<BookingSummary>>(request);
-        return data ?? new List<BookingSummary>();
+        return data.Data ?? new List<BookingSummary>();
     }
-    public async Task<BookingRequest> GetBookingAsync(int id)
+    public async Task<ApiResponse<BookingGetResponse>> GetBookingAsync(int id)
     {
         var request = new RestRequest($"/booking/{id}", Method.Get);
-        return await SendRequestAsync<BookingRequest>(request);
+        return await SendRequestAsync<BookingGetResponse>(request);
     }
 
-    public async Task<BookingResponse> CreateBookingAsync(BookingRequest payload)
+    public async Task<ApiResponse<BookingCreateResponse>> CreateBookingAsync(BookingRequest payload)
     {
         var request = new RestRequest("/booking", Method.Post).AddJsonBody(payload);
-        return await SendRequestAsync<BookingResponse>(request);      
+        var response = await SendRequestAsync<BookingCreateResponse>(request);
+        
+        // Successfully registers in the Core registry
+        ResourceRegistry.IdsToDelete.Add(response.Data.bookingid);
+        return response;
     }
 
     // Example of adding authentication to a specific call
@@ -36,11 +40,11 @@ public class BookingService : RestClientBase
         await _client.ExecuteAsync(request);
     }
 
-    public async Task<BookingResponse> UpdateBookingAsync(int id, BookingRequest payload, string token)
+    public async Task<ApiResponse<BookingGetResponse>> UpdateBookingAsync(int id, BookingRequest payload, string token)
     {
         var request = new RestRequest($"/booking/{id}", Method.Put);
         request.AddHeader("Cookie", $"token={token}");
         request.AddJsonBody(payload);
-        return await SendRequestAsync<BookingResponse>(request);      
+        return await SendRequestAsync<BookingGetResponse>(request);      
     }
 }

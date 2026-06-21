@@ -20,7 +20,7 @@ namespace RestfulBooker.Core
             _client.AddDefaultHeader("Accept", "application/json");
         }
 
-        protected async Task<T> SendRequestAsync<T>(RestRequest request)
+        protected async Task<ApiResponse<T>> SendRequestAsync<T>(RestRequest request)
         {
             var response = await _client.ExecuteAsync<T>(request);
 
@@ -31,8 +31,11 @@ namespace RestfulBooker.Core
 
                 throw new Exception($"Request failed: {response.StatusCode}");
             }
-
-            return response.Data;
+            return new ApiResponse<T>
+            {
+                Data = response.Data,
+                StatusCode = response.StatusCode
+            };
         }
     }
 }

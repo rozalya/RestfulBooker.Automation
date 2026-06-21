@@ -1,0 +1,70 @@
+﻿using FluentAssertions;
+using FluentAssertions.Execution;
+using FluentAssertions.Primitives;
+using System.Net;
+using System.Runtime.InteropServices;
+using static RestfulBooker.Core.BookingModel;
+
+namespace RestfulBooker.Tests
+{
+    public class BookingAssertion : ReferenceTypeAssertions<object, BookingAssertion>
+    {
+        private readonly BookingGetResponse _flatData;
+        private readonly BookingCreateResponse _wrappedData;
+
+        public BookingAssertion(BookingGetResponse instance, AssertionChain chain)
+         : base(instance, chain) { _flatData = instance; }
+
+        // Overload 2: Handle Wrapped Data
+        public BookingAssertion(BookingCreateResponse instance, AssertionChain chain)
+            : base(instance, chain) { _wrappedData = instance; }
+
+
+        protected override string Identifier => "booking";
+
+        public AndConstraint<BookingAssertion> BeValid(string because = "", params object[] becauseArgs)
+        {
+            var dataToValidate = (object)_flatData ?? _wrappedData?.booking;
+
+            // Run the automatic check
+            ValidateProperties(dataToValidate);
+            return new AndConstraint<BookingAssertion>(this);
+        }
+        public void Match(BookingRequest expected)
+        {
+            // 1. Normalize the actual data
+            string actualFirst = _flatData?.firstname ?? _wrappedData?.booking.firstname;
+            string actualLast = _flatData?.lastname ?? _wrappedData?.booking.lastname;
+            int actualPrice = (int)(_flatData?.totalprice ?? _wrappedData?.booking.totalprice);
+
+            // 2. Perform the comparison
+            actualFirst.Should().Be(expected.firstname);
+            actualLast.Should().Be(expected.lastname);
+            actualPrice.Should().Be(expected.totalprice);
+        }
+
+        private void ValidateProperties(object data)
+        {
+            if (data == null) throw new Exception("The object is null!");
+
+            // Use Reflection to get all public properties
+            var properties = data.GetType().GetProperties();
+
+            foreach (var prop in properties)
+            {
+                var value = prop.GetValue(data);
+
+                // Check if the value is null or (for integers/bools) if it's the default value
+                if (value == null || value.Equals(GetDefaultValue(prop.PropertyType)))
+                {
+                    throw new Exception($"Property '{prop.Name}' is empty or null!");
+                }
+            }
+        }
+
+        private object GetDefaultValue(Type type)
+        {
+            return type.IsValueType ? Activator.CreateInstance(type) : null;
+        }
+    }
+}

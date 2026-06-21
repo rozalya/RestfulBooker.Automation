@@ -14,6 +14,6 @@ public static class BookingDataGenerator
             {
                 checkin = f.Date.Soon(5).ToString("yyyy-MM-dd"),
                 checkout = f.Date.Soon(10).ToString("yyyy-MM-dd")
-            });
+            }).RuleFor(u => u.additionalneeds, f => f.Lorem.Word());
     }
 }
