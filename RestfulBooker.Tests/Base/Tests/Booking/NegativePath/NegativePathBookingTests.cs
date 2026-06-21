@@ -1,6 +1,5 @@
 ﻿using FluentAssertions;
 using RestfulBooker.Core;
-using RestSharp;
 using System.Net;
 using static RestfulBooker.Core.BookingModel;
 
@@ -57,7 +56,6 @@ namespace RestfulBooker.Tests
                 response.Should().ThrowAsync<ApiException>()
                    .WithMessage("*Internal Server Error*")
                    .Where(e => e.StatusCode == HttpStatusCode.InternalServerError);
-
             });
 
 
@@ -90,6 +88,25 @@ namespace RestfulBooker.Tests
 
             });
 
+        }
+
+        [Test]
+        public async Task CreateBooking_EmptyBody_Returns500Or400()
+        {
+            BookingRequest emptyPayload = null;
+            Func<Task> response = null;
+
+            await StepAsync("Act:", async () =>
+            {
+                response = async () => await App.Booking.CreateBookingAsync(emptyPayload);
+            });
+
+            Step("Assert", () =>
+            {
+                response.Should().ThrowAsync<ApiException>()
+                  .Where(e => e.StatusCode == HttpStatusCode.BadRequest ||
+                         e.StatusCode == HttpStatusCode.InternalServerError);
+            }); 
         }
     }
 }
