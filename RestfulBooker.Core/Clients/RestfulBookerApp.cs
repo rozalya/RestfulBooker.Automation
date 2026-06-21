@@ -11,8 +11,8 @@ namespace RestfulBooker.Core
         {
             // Now you can pass the 'Client' inherited from RestClientBase
             // to your services so they all share the same configuration
-            Auth = new AuthService(Client);
-            Booking = new BookingService(Client);
+            Auth = new AuthService(_client);
+            Booking = new BookingService(_client.Options.BaseUrl.ToString());
         }
     }
 }

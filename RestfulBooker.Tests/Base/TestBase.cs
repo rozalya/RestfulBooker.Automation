@@ -70,13 +70,45 @@ namespace RestfulBooker.Tests
         protected void Step(string description, Action action)
         {
             Log.Information($">>> STEP: {description}");
-            action();
+            try
+            {
+                action();
+            }
+            catch (Exception ex)
+            {
+                // Custom logging based on the type of error
+                if (ex is FluentAssertions.Execution.AssertionFailedException)
+                {
+                    Log.Error($">>> ASSERTION FAILED: {description}. Details: {ex.Message}");
+                }
+                else
+                {
+                    Log.Error($">>> STEP ERROR: {description}. Exception: {ex.GetType().Name} - {ex.Message}");
+                }
+                throw; //
+            }
         }
         // Overload for Async steps
         protected async Task StepAsync(string description, Func<Task> action)
         {
             Log.Information($">>> STEP: {description}");
-            await action();
+             try
+            {
+                await action();
+            }
+            catch (Exception ex)
+            {
+                // Custom logging based on the type of error
+                if (ex is FluentAssertions.Execution.AssertionFailedException)
+                {
+                    Log.Error($">>> ASSERTION FAILED: {description}. Details: {ex.Message}");
+                }
+                else
+                {
+                    Log.Error($">>> STEP ERROR: {description}. Exception: {ex.GetType().Name} - {ex.Message}");
+                }
+                throw; //
+            };
         }
     }
 }
