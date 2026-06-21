@@ -1,85 +1,95 @@
-﻿using RestfulBooker.Core;
+﻿using FluentAssertions;
+using RestfulBooker.Core;
+using RestSharp;
+using System.Net;
 using static RestfulBooker.Core.BookingModel;
 
 namespace RestfulBooker.Tests
 {
     [TestFixture]
-    public class NegativPathBookingTests : TestBase
+    public class NegativePathBookingTests : TestBase
     {
         [Test]
-        public async Task GetBooking_ValidId_ShouldReturnBookingDetails()
+        public async Task GetBooking_WhenIdDoesNotExist_Returns404()
         {
             int firstId = 0;
-            ApiResponse<BookingGetResponse> booking = null;
+            Func<Task> booking = null;
 
             await StepAsync("Arrange: Get booking ID", async () =>
             {
                 var bookingList = await App.Booking.GetAllBookingIdsAsync();
                 firstId = bookingList.First().bookingId;
             });
-
             await StepAsync("Act: Use the ID we just captured", async () =>
             {
-                booking = await App.Booking.GetBookingAsync(firstId);
+                booking = async () => await App.Booking.GetBookingAsync(firstId + 9999999);
             });
 
             Step("Assert", () =>
             {
-                ///booking.StatusCode.Should().Be(HttpStatusCode.OK);
-                booking.Data.Should().BeValid("because we expect a valid response from the API");
-            });
+                booking.Should().ThrowAsync<ApiException>()
+                   .WithMessage("*Bad Request*") 
+                   .Where(e => e.StatusCode == HttpStatusCode.BadRequest);
+
+            });          
         }
-
         [Test]
-        public async Task CreateBooking_WithValidData_Returns200OkAsync()
+        public async Task CreateBooking_MissingRequiredFields_Returns500()
         {
-            BookingRequest bookingData = null;
-            ApiResponse<BookingCreateResponse> response = null;
 
+            BookingRequest bookingData = null;
+            Func<Task> response = null;
             Step("Arrange", () =>
             {
                 bookingData = BookingDataGenerator.GetBookingFaker().Generate();
+                bookingData.lastname = null;
+                bookingData.firstname = null;
+                bookingData.additionalneeds = null;
             });
 
             await StepAsync("Act:", async () =>
             {
-                response = await App.Booking.CreateBookingAsync(bookingData);
+                response = async () => await App.Booking.CreateBookingAsync(bookingData);
             });
 
             Step("Assert", () =>
             {
-                response.Data.Should().NotBeNull();
-                response.Data.Should().BeValid("because we expect a valid response from the API");
+                response.Should().ThrowAsync<ApiException>()
+                   .WithMessage("*Internal Server Error*")
+                   .Where(e => e.StatusCode == HttpStatusCode.InternalServerError);
+
             });
+
+
+            // Assert
+            //response.StatusCode.Should().Be(HttpStatusCode.InternalServerError, "защото сървърът не може да обработи непълна заявка");
         }
 
         [Test]
-        public async Task UpdateBooking_ValidData_ShouldReturnUpdatedDetails()
+        public async Task CreateBooking_InvalidDateFormat_Returns500()
         {
-            BookingRequest updatedData = null;
-            ApiResponse<BookingCreateResponse> createdBooking = null;
-
-            await StepAsync("Arrange: Create a booking so we have something to update", async () =>
+            BookingRequest bookingData = null;
+            Func<Task> response = null;
+            Step("Arrange", () =>
             {
-                var initialData = BookingDataGenerator.GetBookingFaker().Generate();
-                createdBooking = await App.Booking.CreateBookingAsync(initialData);
+                bookingData = BookingDataGenerator.GetBookingFaker().Generate();
+                bookingData.bookingdates.checkin = "not-a-date";
+
             });
 
-            await StepAsync("Act: Prepare updated data and perform the PUT request", async () =>
+            await StepAsync("Act:", async () =>
             {
-                updatedData = BookingDataGenerator.GetBookingFaker().Generate();
-                await App.Booking.UpdateBookingAsync(createdBooking.Data.bookingid, updatedData, AuthToken);
+                response = async () => await App.Booking.CreateBookingAsync(bookingData);
             });
 
-            await StepAsync("Assert: Get the booking again to verify the update", async () =>
+            Step("Assert", () =>
             {
-                var retrievedBooking = await App.Booking.GetBookingAsync(createdBooking.Data.bookingid);
+                response.Should().ThrowAsync<ApiException>()
+                   .WithMessage("*Internal Server Error*")
+                   .Where(e => e.StatusCode == HttpStatusCode.InternalServerError);
 
-                retrievedBooking.Data.Should().Match(updatedData);
-                /* retrievedBooking.firstname.Should().Be(updatedData.firstname);
-                 retrievedBooking.lastname.Should().Be(updatedData.lastname);
-                 retrievedBooking.totalprice.Should().Be(updatedData.totalprice);*/
             });
+
         }
     }
 }

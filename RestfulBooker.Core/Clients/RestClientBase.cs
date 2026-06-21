@@ -1,5 +1,6 @@
 ﻿using RestSharp;
 using Serilog;
+using System.Net;
 
 namespace RestfulBooker.Core
 {
@@ -26,10 +27,30 @@ namespace RestfulBooker.Core
 
             if (!response.IsSuccessful)
             {
-                Log.Error("API call failed: {Method} {Resource}. Status: {Status}. Content: {Content}",
-                    request.Method, request.Resource, response.StatusCode, response.Content);
+                // Извличаме съдържанието на грешката (ако има такова)
+                string errorDetails = response.Content ?? "No error content provided.";
 
-                throw new Exception($"Request failed: {response.StatusCode}");
+                Log.Error("API call failed: {Method} {Resource}. Status: {Status}. Details: {Details}",
+                    request.Method, request.Resource, response.StatusCode, errorDetails);
+
+                // Тук преценяваме според кода как да реагираме
+                switch (response.StatusCode)
+                {
+                    case HttpStatusCode.NotFound:
+                        throw new ResourceNotFoundException($"Ресурсът не е намерен: {errorDetails}");
+
+                    case HttpStatusCode.Unauthorized:
+                    case HttpStatusCode.Forbidden:
+                        throw new ApiException(response.StatusCode, $"Оторизацията е отказана: {errorDetails}");
+
+                    case HttpStatusCode.BadRequest:
+                        throw new ApiException(HttpStatusCode.BadRequest, $"Лоша заявка (Bad Request): {errorDetails}");
+                   
+                    case HttpStatusCode.InternalServerError:
+                        throw new ApiException(HttpStatusCode.InternalServerError, $"InternalServerError: {errorDetails}");
+                    default:
+                        throw new ApiException(response.StatusCode, $"Неочаквана грешка: {errorDetails}");
+                }
             }
             return new ApiResponse<T>
             {
