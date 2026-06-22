@@ -42,11 +42,7 @@ namespace RestfulBooker.Tests
         [TearDown]
         public async Task GlobalTearDown()
         {
-            // 1. Perform cleanup first
             await BaseCleanup();
-
-            // 2. Attach logs after cleanup is done
-            // Note: Ensure the path is correct or dynamic based on the test
             TestContext.AddTestAttachment("logs/test-run-.log", "Execution Logs");
         }
 
@@ -67,7 +63,7 @@ namespace RestfulBooker.Tests
             ResourceRegistry.IdsToDelete.Clear();
         }
 
-        // 2. UTILITY METHODS (Called manually by your tests)
+        // UTILITY METHODS (Called manually in tests)
         protected void Step(string description, Action action)
         {
             Log.Information($">>> STEP: {description}");
@@ -98,7 +94,6 @@ namespace RestfulBooker.Tests
             }
             catch (Exception ex)
             {
-                // Custom logging based on the type of error
                 if (ex is FluentAssertions.Execution.AssertionFailedException)
                 {
                     Log.Error($">>> ASSERTION FAILED: {description}. Details: {ex.Message}");

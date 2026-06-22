@@ -20,6 +20,12 @@ namespace RestfulBooker.Tests
 
         protected override string Identifier => "booking";
 
+        /// <summary>
+        /// Serves as a high-level entry point to trigger automated property validation.
+        /// </summary>
+        /// <param name="because"></param>
+        /// <param name="becauseArgs"></param>
+        /// <returns></returns>
         public AndConstraint<BookingAssertion> BeValid(string because = "", params object[] becauseArgs)
         {
             var dataToValidate = (object)_flatData ?? _wrappedData?.booking;
@@ -28,6 +34,12 @@ namespace RestfulBooker.Tests
             ValidateProperties(dataToValidate);
             return new AndConstraint<BookingAssertion>(this);
         }
+
+        /// <summary>
+        /// Performs a detailed, field-by-field comparison 
+        /// between the actual booking data and the expected object
+        /// </summary>
+        /// <param name="expected"></param>
         public void Match(BookingRequests expected)
         {
             // 1. Normalize the actual data
@@ -44,22 +56,17 @@ namespace RestfulBooker.Tests
         private void ValidateProperties(object data)
         {
             if (data == null) throw new Exception("The object is null!");
-
-            // Use Reflection to get all public properties
             var properties = data.GetType().GetProperties();
 
             foreach (var prop in properties)
             {
-                var value = prop.GetValue(data);
-
-                // Check if the value is null or (for integers/bools) if it's the default value
+                var value = prop.GetValue(data);               
                 if (value == null || value.Equals(GetDefaultValue(prop.PropertyType)))
                 {
                     throw new Exception($"Property '{prop.Name}' is empty or null!");
                 }
             }
         }
-
         private object GetDefaultValue(Type type)
         {
             return type.IsValueType ? Activator.CreateInstance(type) : null;

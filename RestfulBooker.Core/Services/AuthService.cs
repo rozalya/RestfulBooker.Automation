@@ -11,6 +11,14 @@ namespace RestfulBooker.Core
             _client = client;
         }
 
+        /// <summary>
+        /// It sends a POST request to the /auth endpoint 
+        /// containing the user's credentials (username and password) in the JSON body.
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public string GetAuthToken(string username, string password)
         {
             var request = new RestRequest("/auth", Method.Post);
