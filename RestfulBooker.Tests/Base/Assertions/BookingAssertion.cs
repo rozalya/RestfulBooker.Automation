@@ -1,9 +1,7 @@
 ﻿using FluentAssertions;
 using FluentAssertions.Execution;
 using FluentAssertions.Primitives;
-using System.Net;
-using System.Runtime.InteropServices;
-using static RestfulBooker.Core.BookingModel;
+using RestfulBooker.Core;
 
 namespace RestfulBooker.Tests
 {
@@ -30,7 +28,7 @@ namespace RestfulBooker.Tests
             ValidateProperties(dataToValidate);
             return new AndConstraint<BookingAssertion>(this);
         }
-        public void Match(BookingRequest expected)
+        public void Match(BookingRequests expected)
         {
             // 1. Normalize the actual data
             string actualFirst = _flatData?.firstname ?? _wrappedData?.booking.firstname;

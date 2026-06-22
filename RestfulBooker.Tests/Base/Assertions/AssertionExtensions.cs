@@ -1,8 +1,8 @@
 ﻿using FluentAssertions.Execution;
-using static RestfulBooker.Core.BookingModel;
+using RestfulBooker.Core;
 
 namespace RestfulBooker.Tests
-{ 
+{
     public static class AssertionExtensions
     {
         public static BookingAssertion Should(this BookingGetResponse instance)

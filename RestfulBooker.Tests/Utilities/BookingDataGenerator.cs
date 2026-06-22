@@ -1,11 +1,11 @@
 ﻿using Bogus;
-using static RestfulBooker.Core.BookingModel;
+using RestfulBooker.Core;
 
 public static class BookingDataGenerator
 {
-    public static Faker<BookingRequest> GetBookingFaker()
+    public static Faker<BookingRequests> GetBookingFaker()
     {
-        return new Faker<BookingRequest>()
+        return new Faker<BookingRequests>()
             .RuleFor(u => u.firstname, f => f.Name.FirstName())
             .RuleFor(u => u.lastname, f => f.Name.LastName())
             .RuleFor(u => u.totalprice, f => f.Random.Int(100, 1000))

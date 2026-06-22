@@ -1,8 +1,6 @@
 ﻿using FluentAssertions;
 using RestfulBooker.Core;
-using RestSharp;
 using System.Net;
-using static RestfulBooker.Core.BookingModel;
 
 namespace RestfulBooker.Tests
 {
@@ -11,11 +9,11 @@ namespace RestfulBooker.Tests
         [Test]
         public async Task UpdateBooking_WithoutAuth_ShouldThrowUnauthorized()
         {
-            BookingRequest updatedData = null;
+            BookingRequests updatedData = null;
             ApiResponse<BookingCreateResponse> createdBooking = null;
-            Func<Task> act = null;
+            ApiResponse<BookingGetResponse> act = null;
 
-            await StepAsync("Arrange: Create a booking so we have something to update", async () =>
+            await StepAsync("Arrange: generate booking data and create booking", async () =>
             {
                 var initialData = BookingDataGenerator.GetBookingFaker().Generate();
                 createdBooking = await App.Booking.CreateBookingAsync(initialData);
@@ -24,25 +22,26 @@ namespace RestfulBooker.Tests
             await StepAsync("Act: Prepare updated data and perform the PUT request", async () =>
             {
                 updatedData = BookingDataGenerator.GetBookingFaker().Generate();
-                act = async () => await App.Booking.UpdateBookingAsync(createdBooking.Data.bookingid, updatedData, token: "testToken");
+                act =  await App.Booking.UpdateBookingAsync<BookingRequests, BookingGetResponse>(createdBooking.Data.bookingid, updatedData, token: "testToken");
             });
 
-            await StepAsync("Act:", async () =>
+            await StepAsync("Assert: assert the response received is expected ", async () =>
             {
-                await act.Should().ThrowAsync<ApiException>()
-                         .Where(e => e.StatusCode == HttpStatusCode.Forbidden ||
-                                     e.StatusCode == HttpStatusCode.Unauthorized);
+                act.StatusCode.Should().BeOneOf(
+                 new[] { HttpStatusCode.Forbidden, HttpStatusCode.Unauthorized },
+                      "the server should return a 401 or 403 error for empty data. Received:" +
+                      $" {act.StatusCode} {(int)act.StatusCode}");
             });
         }
 
         [Test]
         public async Task UpdateBooking_WithInvalidDateFormat_ShouldThrowBadRequest()
         {
-            BookingRequest updatedData = null;
+            BookingRequests updatedData = null;
             ApiResponse<BookingCreateResponse> createdBooking = null;
-            Func<Task> act = null;
+            ApiResponse<BookingGetResponse> act = null;
 
-            await StepAsync("Arrange: Create a booking so we have something to update", async () =>
+            await StepAsync("Arrange: generate booking data and create booking", async () =>
             {
                 var initialData = BookingDataGenerator.GetBookingFaker().Generate();
                 createdBooking = await App.Booking.CreateBookingAsync(initialData);
@@ -52,38 +51,113 @@ namespace RestfulBooker.Tests
             {
                 updatedData = BookingDataGenerator.GetBookingFaker().Generate();
                 updatedData.bookingdates.checkin = "not-a-date";            
-                act = async () => await App.Booking.UpdateBookingAsync(createdBooking.Data.bookingid, updatedData, AuthToken);
+                updatedData.bookingdates.checkout = "not-a-date";                       
+                act =  await App.Booking.UpdateBookingAsync<BookingRequests, BookingGetResponse>(createdBooking.Data.bookingid, updatedData, AuthToken);
             });
 
-            await StepAsync("Act:", async () =>
+            await StepAsync("Assert: assert the response received is expected ", async () =>
             {
-                await act.Should().ThrowAsync<ApiException>()
-                   .Where(e => e.StatusCode == HttpStatusCode.BadRequest);
+                act.StatusCode.Should().Be(
+                   HttpStatusCode.BadRequest,
+                   $"the server should return a 400 error for empty data. Received:" +
+                   $" {act.StatusCode} {(int)act.StatusCode}");
+            });
+        }
+
+        [Test]
+        public async Task UpdateBooking_WithInvalidNameFormat_ShouldThrowBadRequest()
+        {
+            BookingRequests updatedData = null;
+            ApiResponse<BookingCreateResponse> createdBooking = null;
+            ApiResponse<BookingGetResponse> booking = null;
+
+            await StepAsync("Arrange: generate booking data and create booking", async () =>
+            {
+                var initialData = BookingDataGenerator.GetBookingFaker().Generate();
+                createdBooking = await App.Booking.CreateBookingAsync(initialData);
+            });
+
+            await StepAsync("Act: Prepare updated data and perform the PUT request", async () =>
+            {
+                updatedData = BookingDataGenerator.GetBookingFaker().Generate();
+                updatedData.firstname = "";
+                updatedData.lastname = "";
+                booking = await App.Booking.UpdateBookingAsync<BookingRequests, BookingGetResponse>(createdBooking.Data.bookingid, updatedData, AuthToken);
+            });
+
+            await StepAsync("Assert: assert the response received is expected", async () =>
+            {
+                booking.StatusCode.Should().Be(
+                    HttpStatusCode.BadRequest,
+                    $"the server should return a 400 error for empty data. Received:" +
+                    $" {booking.StatusCode} {(int)booking.StatusCode}");
+               });
+        }
+
+        [Test]
+        public async Task UpdateBooking_InvalidTotalPriseFormat_ShouldThrowBadRequest()
+        {
+            BookingRequests updatedData = null;
+            ApiResponse<BookingCreateResponse> createdBooking = null;
+            ApiResponse<BookingGetResponseInvalidData> booking = null;
+
+            await StepAsync("Arrange: Cgenerate booking data and create booking", async () =>
+            {
+                var initialData = BookingDataGenerator.GetBookingFaker().Generate();
+                createdBooking = await App.Booking.CreateBookingAsync(initialData);
+            });
+         
+            await StepAsync("Act: Prepare updated data and perform the PUT request", async () =>
+            {
+                BookingRequestWithWrongDataType updatedData1 = new BookingRequestWithWrongDataType()
+                {
+                    firstname = "Sally",
+                    lastname = "Brown",
+                    totalprice = "",
+                    depositpaid = true,
+                    bookingdates = new BookingDates
+                    {
+                        checkin = "2017-04-12",
+                        checkout = "2021-01-27"
+                    },
+                    additionalneeds = "Breakfast"
+                };
+                booking = await App.Booking.UpdateBookingAsync<object, BookingGetResponseInvalidData>(createdBooking.Data.bookingid, updatedData1, AuthToken);
+            });
+
+            await StepAsync("Assert: assert the response received is expected", async () =>
+            {
+                booking.StatusCode.Should().Be(
+                        HttpStatusCode.BadRequest,
+                        $"the server should return a 400 error for empty data. Received:" +
+                        $" {booking.StatusCode} {(int)booking.StatusCode}");
             });
         }
 
         [Test]
         public async Task UpdateBooking_NonExistentId_ShouldThrowNotFound()
         {
-            BookingRequest updatedData = null;
+            BookingRequests updatedData = null;
             int firstId = 0;
-            Func<Task> booking = null;
+            ApiResponse<BookingGetResponse> booking = null;
 
-            await StepAsync("Arrange: Get booking ID", async () =>
+            await StepAsync("Arrange: Get booking ID and generate booking data", async () =>
             {
                 var bookingList = await App.Booking.GetAllBookingIdsAsync();
                 firstId = bookingList.First().bookingId;
                 updatedData = BookingDataGenerator.GetBookingFaker().Generate();
             });
-            await StepAsync("Act: Use the ID we just captured", async () =>
+            await StepAsync("Act: Prepare updated data and perform the PUT request", async () =>
             {               
-                booking = async () => await App.Booking.UpdateBookingAsync(firstId + 9999999, updatedData, AuthToken);
+                booking =  await App.Booking.UpdateBookingAsync<BookingRequests, BookingGetResponse>(firstId + 9999999, updatedData, AuthToken);
             });
 
-            await StepAsync("Act: Use the ID we just captured", async () =>
+            await StepAsync("Assert: assert the response received is expected", async () =>
             {
-                await booking.Should().ThrowAsync<ApiException>()
-                      .Where(e => e.StatusCode == HttpStatusCode.MethodNotAllowed);
+                booking.StatusCode.Should().Be(
+                       HttpStatusCode.MethodNotAllowed,
+                       $"the server should return a 405 error for empty data. Received:" +
+                       $" {booking.StatusCode} {(int)booking.StatusCode}");
             });  
         }
     }

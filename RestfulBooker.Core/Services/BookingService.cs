@@ -1,7 +1,5 @@
 ﻿using RestfulBooker.Core;
 using RestSharp;
-using Serilog;
-using static RestfulBooker.Core.BookingModel;
 
 public class BookingService : RestClientBase
 {
@@ -22,17 +20,16 @@ public class BookingService : RestClientBase
         return await SendRequestAsync<BookingGetResponse>(request);
     }
 
-    public async Task<ApiResponse<BookingCreateResponse>> CreateBookingAsync(BookingRequest payload)
+    public async Task<ApiResponse<BookingCreateResponse>> CreateBookingAsync(BookingRequests payload)
     {
         var request = new RestRequest("/booking", Method.Post).AddJsonBody(payload);
         var response = await SendRequestAsync<BookingCreateResponse>(request);
         
-        // Successfully registers in the Core registry
+
         ResourceRegistry.IdsToDelete.Add(response.Data.bookingid);
         return response;
     }
 
-    // Example of adding authentication to a specific call
     public async Task DeleteBookingAsync(int id, string token)
     {
         var request = new RestRequest($"/booking/{id}", Method.Delete)
@@ -40,11 +37,20 @@ public class BookingService : RestClientBase
         await _client.ExecuteAsync(request);
     }
 
-    public async Task<ApiResponse<BookingGetResponse>> UpdateBookingAsync(int id, BookingRequest payload, string token)
+    public async Task<ApiResponse<BookingCreateResponse>> CreateBookingAsync1(BookingRequests payload, string username, string password)
+    {
+        var request = new RestRequest("/booking", Method.Post).AddJsonBody(payload);
+        request.AddJsonBody(new { username = username, password = password });
+        var response = await SendRequestAsync<BookingCreateResponse>(request);
+
+        return response;
+    }
+    public async Task<ApiResponse<TResponse>> UpdateBookingAsync<TRequest, TResponse>(int id, TRequest payload, string token)
+        where TRequest : class
     {
         var request = new RestRequest($"/booking/{id}", Method.Put);
         request.AddHeader("Cookie", $"token={token}");
         request.AddJsonBody(payload);
-        return await SendRequestAsync<BookingGetResponse>(request);      
+        return await SendRequestAsync<TResponse>(request);
     }
 }

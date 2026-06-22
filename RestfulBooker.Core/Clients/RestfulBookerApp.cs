@@ -1,6 +1,4 @@
-﻿
-
-namespace RestfulBooker.Core
+﻿namespace RestfulBooker.Core
 {
     public class RestfulBookerApp : RestClientBase
     {
@@ -9,8 +7,6 @@ namespace RestfulBooker.Core
 
         public RestfulBookerApp(string baseUrl) : base(baseUrl)
         {
-            // Now you can pass the 'Client' inherited from RestClientBase
-            // to your services so they all share the same configuration
             Auth = new AuthService(_client);
             Booking = new BookingService(_client.Options.BaseUrl.ToString());
         }

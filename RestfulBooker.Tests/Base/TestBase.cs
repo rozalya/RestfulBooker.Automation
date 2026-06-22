@@ -6,18 +6,15 @@ namespace RestfulBooker.Tests
 {
     public class TestBase
     {
-        // This 'App' gives you access to all your services (Auth, Booking, etc.)
         protected RestfulBookerApp App;
         protected string AuthToken;
         protected IConfiguration Configuration;
         public TestBase()
         {
-            // Build the configuration
             Configuration = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .Build();
 
-            // Configure Serilog
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
                 .WriteTo.Console()
@@ -39,16 +36,20 @@ namespace RestfulBooker.Tests
         [OneTimeTearDown]
         public void GlobalTeardown()
         {
-            // Ensure logs are flushed to disk before the process exits
             Log.CloseAndFlush();
         }
 
         [TearDown]
-       /* public void LogAttachment()
+        public async Task GlobalTearDown()
         {
-            // Attaches the log file to the current test result for easier viewing in reporting tools
-            //TestContext.AddTestAttachment("logs/test-run-.log", "Execution Logs");
-        }*/
+            // 1. Perform cleanup first
+            await BaseCleanup();
+
+            // 2. Attach logs after cleanup is done
+            // Note: Ensure the path is correct or dynamic based on the test
+            TestContext.AddTestAttachment("logs/test-run-.log", "Execution Logs");
+        }
+
         public async Task BaseCleanup()
         {
             foreach (var id in ResourceRegistry.IdsToDelete)
@@ -76,7 +77,6 @@ namespace RestfulBooker.Tests
             }
             catch (Exception ex)
             {
-                // Custom logging based on the type of error
                 if (ex is FluentAssertions.Execution.AssertionFailedException)
                 {
                     Log.Error($">>> ASSERTION FAILED: {description}. Details: {ex.Message}");
@@ -85,10 +85,10 @@ namespace RestfulBooker.Tests
                 {
                     Log.Error($">>> STEP ERROR: {description}. Exception: {ex.GetType().Name} - {ex.Message}");
                 }
-                throw; //
+                throw; 
             }
         }
-        // Overload for Async steps
+
         protected async Task StepAsync(string description, Func<Task> action)
         {
             Log.Information($">>> STEP: {description}");
@@ -107,7 +107,7 @@ namespace RestfulBooker.Tests
                 {
                     Log.Error($">>> STEP ERROR: {description}. Exception: {ex.GetType().Name} - {ex.Message}");
                 }
-                throw; //
+                throw; 
             };
         }
     }

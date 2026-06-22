@@ -12,8 +12,7 @@ namespace RestfulBooker.Core
         {
             var options = new RestClientOptions(baseUrl)
             {
-                // You can add global configurations here
-                Timeout = TimeSpan.FromSeconds(10), // 10 seconds timeout
+                Timeout = TimeSpan.FromSeconds(10), 
             };
 
             _client = new RestClient(options);
@@ -21,35 +20,32 @@ namespace RestfulBooker.Core
             _client.AddDefaultHeader("Accept", "application/json");
         }
 
-        protected async Task<ApiResponse<T>> SendRequestAsync<T>(RestRequest request)
+        public async Task<ApiResponse<T>> SendRequestAsync<T>(RestRequest request)
         {
             var response = await _client.ExecuteAsync<T>(request);
 
             if (!response.IsSuccessful)
             {
-                // Извличаме съдържанието на грешката (ако има такова)
                 string errorDetails = response.Content ?? "No error content provided.";
 
-                Log.Error("API call failed: {Method} {Resource}. Status: {Status}. Details: {Details}",
-                    request.Method, request.Resource, response.StatusCode, errorDetails);
+                Log.Error($"API call failed: {request.Method} {request.Resource}. Status: {response.StatusCode}. Details: {errorDetails}");
 
-                // Тук преценяваме според кода как да реагираме
                 switch (response.StatusCode)
                 {
                     case HttpStatusCode.NotFound:
-                        throw new ResourceNotFoundException($"Ресурсът не е намерен: {errorDetails}");
+                        throw new ResourceNotFoundException($"Resource not found: {errorDetails}");
 
                     case HttpStatusCode.Unauthorized:
                     case HttpStatusCode.Forbidden:
-                        throw new ApiException(response.StatusCode, $"Оторизацията е отказана: {errorDetails}");
+                        throw new ApiException(response.StatusCode, $"Authorization denied: {errorDetails}");
 
                     case HttpStatusCode.BadRequest:
-                        throw new ApiException(HttpStatusCode.BadRequest, $"Лоша заявка (Bad Request): {errorDetails}");
+                        throw new ApiException(HttpStatusCode.BadRequest, $"Bad Request: {errorDetails}");
                    
                     case HttpStatusCode.InternalServerError:
                         throw new ApiException(HttpStatusCode.InternalServerError, $"InternalServerError: {errorDetails}");
                     default:
-                        throw new ApiException(response.StatusCode, $"Неочаквана грешка: {errorDetails}");
+                        throw new ApiException(response.StatusCode, $"Unexpected error: {errorDetails}");
                 }
             }
             return new ApiResponse<T>
