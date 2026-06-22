@@ -23,36 +23,18 @@ namespace RestfulBooker.Core
         public async Task<ApiResponse<T>> SendRequestAsync<T>(RestRequest request)
         {
             var response = await _client.ExecuteAsync<T>(request);
-
-            if (!response.IsSuccessful)
-            {
-                string errorDetails = response.Content ?? "No error content provided.";
-
-                Log.Error($"API call failed: {request.Method} {request.Resource}. Status: {response.StatusCode}. Details: {errorDetails}");
-
-                switch (response.StatusCode)
-                {
-                    case HttpStatusCode.NotFound:
-                        throw new ResourceNotFoundException($"Resource not found: {errorDetails}");
-
-                    case HttpStatusCode.Unauthorized:
-                    case HttpStatusCode.Forbidden:
-                        throw new ApiException(response.StatusCode, $"Authorization denied: {errorDetails}");
-
-                    case HttpStatusCode.BadRequest:
-                        throw new ApiException(HttpStatusCode.BadRequest, $"Bad Request: {errorDetails}");
-                   
-                    case HttpStatusCode.InternalServerError:
-                        throw new ApiException(HttpStatusCode.InternalServerError, $"InternalServerError: {errorDetails}");
-                    default:
-                        throw new ApiException(response.StatusCode, $"Unexpected error: {errorDetails}");
-                }
-            }
-            return new ApiResponse<T>
+            var apiResponse = new ApiResponse<T>
             {
                 Data = response.Data,
                 StatusCode = response.StatusCode
             };
+
+            if (!response.IsSuccessful)
+            {
+                apiResponse.ErrorMessage = response.Content ?? "No error content provided.";
+                Log.Error($"API call failed: {request.Method} {request.Resource}. Status: {response.StatusCode}. Details: {apiResponse.ErrorMessage}");
+            }
+            return apiResponse;
         }
     }
 }

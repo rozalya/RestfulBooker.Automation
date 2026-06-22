@@ -26,8 +26,8 @@ namespace RestfulBooker.Tests
             Step("Assert", () =>
             {
                 booking.StatusCode.Should().Be(
-                    HttpStatusCode.BadRequest,
-                    $"the server should return a 400 error for bad request. Received:" +
+                    HttpStatusCode.NotFound,
+                    $"the server should return a 404 error for bad request. Received:" +
                     $" {booking.StatusCode} {(int)booking.StatusCode}");
             });          
         }

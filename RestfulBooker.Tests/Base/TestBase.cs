@@ -43,7 +43,6 @@ namespace RestfulBooker.Tests
         public async Task GlobalTearDown()
         {
             await BaseCleanup();
-            TestContext.AddTestAttachment("logs/test-run-.log", "Execution Logs");
         }
 
         public async Task BaseCleanup()
